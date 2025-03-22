@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 public class FlappyBirdController implements Initializable
 {
-
     AnimationTimer gameLoop;
 
     @FXML
@@ -19,7 +18,7 @@ public class FlappyBirdController implements Initializable
     @FXML
     private Rectangle bird;
 
-    double yDelta = 0.01;
+    double yAxis = 0.01;
     double time = 0;
     int jumpHeight = 50;
 
@@ -65,7 +64,7 @@ public class FlappyBirdController implements Initializable
     private void update()
     {
         time ++;
-        moveBirdY(yDelta * time);
+        moveBirdY(yAxis * time);
 
         if(isBirdDead())
         {
