@@ -27,12 +27,11 @@ public class FlappyBirdController implements Initializable
     double planeHeight = 600;
     double planeWidth = 400;
     Random random = new Random();
-    ArrayList<Rectangle> obstacles = new ArrayList<>();
+    ArrayList<Rectangle> obstacles = new ArrayList<>(); // ArrayList to hold obstacles
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        load();
         createObstacles();
         moveObstacles(obstacles);
         gameLoop = new AnimationTimer()
@@ -47,8 +46,9 @@ public class FlappyBirdController implements Initializable
     }
 
     @FXML
-    void pressed(KeyEvent event)
+    void pressed(KeyEvent event) //Detects a keyboard input
     {
+        //Bird flies if space is pressed
         if(event.getCode() == KeyCode.SPACE)
         {
             fly();
@@ -58,6 +58,7 @@ public class FlappyBirdController implements Initializable
 
     private void fly()
     {
+        System.out.print(bird.getLayoutY() + "\n");
         if(bird.getLayoutY() <= jumpHeight)
         {
             moveBirdY(-(bird.getLayoutY() + bird.getY()));
@@ -84,12 +85,6 @@ public class FlappyBirdController implements Initializable
         }
     }
 
-    //Everything called once, at the game start
-    private void load()
-    {
-        System.out.println("Game starting");
-    }
-
     private void moveBirdY(double positionChange)
     {
         bird.setY(bird.getY() + positionChange);
@@ -100,7 +95,6 @@ public class FlappyBirdController implements Initializable
         double birdY = bird.getLayoutY() + bird.getY();
         if(collisionDetection())
         {
-            System.out.println("Bird collision");
             return true;
         }
         return birdY >= plane.getHeight();
@@ -115,28 +109,35 @@ public class FlappyBirdController implements Initializable
         time = 0;
     }
 
+    //create the tubes/obstacles
     private void createObstacles()
     {
-        int width = 25;
-        double xPos = planeWidth;
-        double space = 200;
-        double recTopHeight = random.nextInt((int)(planeHeight - space - 100)) + 50;
-        double recBottomHeight = planeHeight - space - recTopHeight;
+        int width = 50; //width of obstacle
+        double xPos = planeWidth; //location of where it will spawn
+        double space = 200; //space between the tubes
+        double recTopHeight = random.nextInt((int)(planeHeight - space - 100)) + 50; //height of the top tube
+        double recBottomHeight = planeHeight - space - recTopHeight; //height of the bottom tube
 
+        //create both of the tubes
         Rectangle rectangleTop = new Rectangle(xPos, 0, width, recTopHeight);
         Rectangle rectangleBottom = new Rectangle(xPos, recTopHeight + space, width, recBottomHeight);
+
+        //add the tubes to the obstacles arraylist
         obstacles.add(rectangleTop);
         obstacles.add(rectangleBottom);
         plane.getChildren().addAll(rectangleTop,rectangleBottom);
     }
 
+    //Moves a rectangle object towards a certain direction depending on the amount given
     private void moveRectangle(Rectangle rectangle, double amount)
     {
         rectangle.setX(rectangle.getX() + amount);
     }
 
+    //Moves the obstacles in the arraylist towards the bird
     private void moveObstacles(ArrayList<Rectangle> obstacles)
     {
+        //collects the obstacles that go off the screen
         ArrayList<Rectangle> outOfScreen = new ArrayList<>();
 
         for(Rectangle rectangle : obstacles)
@@ -147,6 +148,8 @@ public class FlappyBirdController implements Initializable
                 outOfScreen.add(rectangle);
             }
         }
+
+        //removes all the obstacles that are off-screen
         obstacles.removeAll(outOfScreen);
         plane.getChildren().removeAll(outOfScreen);
     }
