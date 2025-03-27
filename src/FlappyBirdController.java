@@ -22,12 +22,12 @@ public class FlappyBirdController implements Initializable
 
     double yAxis = 0.01;
     double time = 0;
+    int gameTime = 0;
     int jumpHeight = 50;
     double planeHeight = 600;
     double planeWidth = 400;
     Random random = new Random();
     ArrayList<Rectangle> obstacles = new ArrayList<>();
-    double birdX = 100;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
@@ -52,6 +52,7 @@ public class FlappyBirdController implements Initializable
         if(event.getCode() == KeyCode.SPACE)
         {
             fly();
+            time = 0;
         }
     }
 
@@ -60,20 +61,23 @@ public class FlappyBirdController implements Initializable
         if(bird.getLayoutY() <= jumpHeight)
         {
             moveBirdY(-(bird.getLayoutY() + bird.getY()));
-            time = 0;
             return;
         }
-
         moveBirdY(-jumpHeight);
-        time = 0;
     }
 
     //Called every game frame
     private void update()
     {
-        time ++;
+        time++;
+        gameTime++;
         moveBirdY(yAxis * time);
+        moveObstacles(obstacles);
 
+        if(gameTime % 350 == 0)
+        {
+            createObstacles();
+        }
         if(isBirdDead())
         {
             resetBird();
@@ -94,20 +98,28 @@ public class FlappyBirdController implements Initializable
     private boolean isBirdDead()
     {
         double birdY = bird.getLayoutY() + bird.getY();
+        if(collisionDetection())
+        {
+            System.out.println("Bird collision");
+            return true;
+        }
         return birdY >= plane.getHeight();
     }
 
     private void resetBird()
     {
         bird.setY(0);
+        plane.getChildren().removeAll(obstacles);
+        obstacles.clear();
+        gameTime = 0;
         time = 0;
     }
 
     private void createObstacles()
     {
         int width = 25;
-        double xPos = planeWidth - 50;
-        double space = 150;
+        double xPos = planeWidth;
+        double space = 200;
         double recTopHeight = random.nextInt((int)(planeHeight - space - 100)) + 50;
         double recBottomHeight = planeHeight - space - recTopHeight;
 
@@ -118,7 +130,6 @@ public class FlappyBirdController implements Initializable
         plane.getChildren().addAll(rectangleTop,rectangleBottom);
     }
 
-    //Fix
     private void moveRectangle(Rectangle rectangle, double amount)
     {
         rectangle.setX(rectangle.getX() + amount);
@@ -137,5 +148,18 @@ public class FlappyBirdController implements Initializable
             }
         }
         obstacles.removeAll(outOfScreen);
+        plane.getChildren().removeAll(outOfScreen);
+    }
+
+    private boolean collisionDetection()
+    {
+        for (Rectangle rectangle : obstacles)
+        {
+            if(rectangle.getBoundsInParent().intersects(bird.getBoundsInParent()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
