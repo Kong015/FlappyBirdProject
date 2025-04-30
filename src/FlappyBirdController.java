@@ -5,11 +5,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.ResourceBundle;
+
 public class FlappyBirdController implements Initializable
 {
     AnimationTimer gameLoop; // Game Loop that repeatedly updates the game
@@ -20,21 +21,30 @@ public class FlappyBirdController implements Initializable
     @FXML
     private Rectangle bird; // The bird
 
-    double yAxis = 0.01; //Gravity acceleration factor
+
+    @FXML
+    private Text score; //score on top of the screen
+
+    double yAxisMovement = 0.01; //Gravity acceleration factor
+    double accelerationTime = 0;
     double time = 0; // Time passed since last jump
     int gameTime = 0; // Total time passed since the game started
     int jumpHeight = 50;
     double planeHeight = 600;
     double planeWidth = 400;
-    Random random = new Random();
+    int scoreCounter = 0;
+    private Bird birdObj;
+    private ObstacleManager obstacleManager;
+
     ArrayList<Rectangle> obstacles = new ArrayList<>(); // ArrayList to hold obstacles
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        // Start the game by creating initial obstacles and starting the game loop
-        createObstacles();
-        moveObstacles(obstacles);
+        // Start the game by creating the bird object and managing the obstacles object
+        birdObj = new Bird(bird, jumpHeight);
+        obstacleManager = new ObstacleManager(plane, planeHeight, planeWidth);
+
         gameLoop = new AnimationTimer()
         {
             @Override
@@ -43,6 +53,8 @@ public class FlappyBirdController implements Initializable
                 update();
             }
         };
+
+        obstacles.addAll(obstacleManager.createObstacles());
         gameLoop.start();
     }
 
@@ -52,131 +64,68 @@ public class FlappyBirdController implements Initializable
         // Bird flies if space is pressed
         if(event.getCode() == KeyCode.SPACE)
         {
-            fly();
-            time = 0; // Reset gravity timer
+            birdObj.fly();
+            accelerationTime = 0; // Reset acceleration timer
         }
-    }
-
-    private void fly()
-    {
-        // If bird is too close to the top, move it only as far as allowed
-        if(bird.getLayoutY() <= jumpHeight)
-        {
-            moveBirdY(-(bird.getLayoutY() + bird.getY()));
-            return;
-        }
-
-        // Otherwise, move bird up by jump height
-        moveBirdY(-jumpHeight);
     }
 
     // Called every game frame
     private void update()
     {
-        time++;
+        accelerationTime++;
         gameTime++;
 
-        // Apply gravity
-        moveBirdY(yAxis * time);
+        // Apply gravity to the bird object
+        birdObj.moveBirdY(yAxisMovement * accelerationTime);
 
         // Move and mange obstacles
-        moveObstacles(obstacles);
+        obstacleManager.moveObstacles(obstacles);
+
+
+        if(updateScore(obstacles, bird))
+        {
+            scoreCounter++;
+            score.setText(String.valueOf(scoreCounter));
+        }
 
         // Creates new obstacles periodically
         if(gameTime % 350 == 0)
         {
-            createObstacles();
+            obstacles.addAll(obstacleManager.createObstacles());
         }
 
         // Checks if the bird is dead
-        if(isBirdDead())
+        if(birdObj.isBirdDead(obstacles, plane))
         {
-            resetBird();
+            resetGame();
         }
     }
 
-    // Moves bird vertically
-    private void moveBirdY(double positionChange)
+
+    private boolean updateScore(ArrayList<Rectangle> obstacles, Rectangle bird)
     {
-        bird.setY(bird.getY() + positionChange);
+        for (Rectangle obstacle: obstacles)
+        {
+            int birdPositionX = (int) (bird.getLayoutX() + bird.getX());
+            if(((int)(obstacle.getLayoutX() + obstacle.getX()) == birdPositionX))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    // Checks if the bird falls below the certain amount or collides with the obstacles
-    private boolean isBirdDead()
-    {
-        double birdY = bird.getLayoutY() + bird.getY();
-        if(collisionDetection())
-        {
-            return true;
-        }
-        return birdY >= plane.getHeight();
-    }
 
     // Resets the entire game
-    private void resetBird()
+    private void resetGame()
     {
         bird.setY(0); // Reset bird position
         plane.getChildren().removeAll(obstacles); // Remove all current obstacles
         obstacles.clear(); // Clear obstacle list
+        accelerationTime = 0;
         gameTime = 0;
+        scoreCounter = 0;
+        score.setText("0"); // Reset the score to 0
         time = 0;
-    }
-
-    // Create the obstacles
-    private void createObstacles()
-    {
-        int width = 50; // Width of obstacle
-        double xPos = planeWidth; // Location of where it will spawn
-        double space = 200; // Space between the tubes
-        double recTopHeight = random.nextInt((int)(planeHeight - space - 100)) + 50; // Height of the top tube
-        double recBottomHeight = planeHeight - space - recTopHeight; // Height of the bottom tube
-
-        // Create both of the tubes
-        Rectangle rectangleTop = new Rectangle(xPos, 0, width, recTopHeight);
-        Rectangle rectangleBottom = new Rectangle(xPos, recTopHeight + space, width, recBottomHeight);
-
-        // Add the tubes to the obstacles arraylist and the game plane
-        obstacles.add(rectangleTop);
-        obstacles.add(rectangleBottom);
-        plane.getChildren().addAll(rectangleTop,rectangleBottom);
-    }
-
-    // Moves a rectangle horizontally
-    private void moveRectangle(Rectangle rectangle, double amount)
-    {
-        rectangle.setX(rectangle.getX() + amount);
-    }
-
-    // Moves the obstacles in the arraylist towards the bird and removes those off-screen
-    private void moveObstacles(ArrayList<Rectangle> obstacles)
-    {
-        // Collects the obstacles that go off the screen
-        ArrayList<Rectangle> outOfScreen = new ArrayList<>();
-
-        for(Rectangle rectangle : obstacles)
-        {
-            moveRectangle(rectangle, -0.75); // Move left
-            if(rectangle.getX() <= -rectangle.getWidth())
-            {
-                outOfScreen.add(rectangle); // Mark for removal
-            }
-        }
-
-        // Removes all the obstacles that are off-screen
-        obstacles.removeAll(outOfScreen);
-        plane.getChildren().removeAll(outOfScreen);
-    }
-
-    // Checks for collision between the bird and any obstacle
-    private boolean collisionDetection()
-    {
-        for (Rectangle rectangle : obstacles)
-        {
-            if(rectangle.getBoundsInParent().intersects(bird.getBoundsInParent()))
-            {
-                return true; // Collision detected
-            }
-        }
-        return false; // No Collision
     }
 }
