@@ -107,7 +107,8 @@ public class FlappyBirdController implements Initializable
         for (Rectangle obstacle: obstacles)
         {
             int birdPositionX = (int) (bird.getLayoutX() + bird.getX());
-            if(((int)(obstacle.getLayoutX() + obstacle.getX()) == birdPositionX))
+            int obstaclePostionX = (int) (obstacle.getLayoutX() + obstacle.getX());
+            if(obstaclePostionX == birdPositionX)
             {
                 return true;
             }
