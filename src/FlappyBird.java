@@ -9,7 +9,7 @@ public class FlappyBird extends Application
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        Parent root = FXMLLoader.load(getClass().getResource("FlappyBirdController.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("FlappyBird.fxml"));
         Scene scene = new Scene(root); // attach scene graph to the scene
         primaryStage.setTitle("Test"); // displayed in window's title bar
         scene.getRoot().requestFocus(); // allows inputs from keyboard and mouse
