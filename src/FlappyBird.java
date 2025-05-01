@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class FlappyBird extends Application
+public class        FlappyBird extends Application
 {
     @Override
     public void start(Stage primaryStage) throws Exception

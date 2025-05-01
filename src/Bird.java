@@ -28,6 +28,12 @@ public class Bird
     // Moves bird vertically
     public void moveBirdY(double positionChange)
     {
+        // Adding a ceiling so that limits the high of where the bird can fly
+        if(bird.getY() + positionChange < -200)
+        {
+            bird.setY(-200);
+        }
+        System.out.println(bird.getY());
         bird.setY(bird.getY() + positionChange);
     }
 
