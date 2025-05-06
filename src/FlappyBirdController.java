@@ -25,7 +25,7 @@ public class FlappyBirdController implements Initializable
     @FXML
     private Text score; //score on top of the screen
 
-    double yAxisMovement = 0.015; //Gravity acceleration factor
+    double yAxisMovement = 0.05; //Gravity acceleration factor
     double accelerationTime = 0;
     double time = 0; // Time passed since last jump
     int gameTime = 0; // Total time passed since the game started
@@ -101,13 +101,15 @@ public class FlappyBirdController implements Initializable
         }
     }
 
-
+    //Updates the score when the bird passes through the obstacles
     private boolean updateScore(ArrayList<Rectangle> obstacles, Rectangle bird)
     {
         for (Rectangle obstacle: obstacles)
         {
-            int birdPositionX = (int) (bird.getLayoutX() + bird.getX());
-            int obstaclePositionX = (int) (obstacle.getLayoutX() + obstacle.getX());
+            int birdPositionX = (int) (bird.getLayoutX() + bird.getX()); // Location of bird X position
+            int obstaclePositionX = (int) (obstacle.getLayoutX() + obstacle.getX()); // Location of the obstacle X position
+
+            // Checks if the bird X position equals the obstacle X position
             if(obstaclePositionX == birdPositionX)
             {
                 return true;

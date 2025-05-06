@@ -33,7 +33,6 @@ public class Bird
         {
             bird.setY(-200);
         }
-        System.out.println(bird.getY());
         bird.setY(bird.getY() + positionChange);
     }
 
