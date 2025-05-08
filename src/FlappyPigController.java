@@ -10,14 +10,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class FlappyBirdController implements Initializable
+public class FlappyPigController implements Initializable
 {
     AnimationTimer gameLoop; // Game Loop that repeatedly updates the game
 
@@ -25,18 +24,16 @@ public class FlappyBirdController implements Initializable
     private AnchorPane plane; // Main game area
 
     @FXML
-    private Rectangle bird; // The bird
-
-
-    @FXML
-    private Text score; //score on top of the screen
+    private Rectangle pig; // The pig
 
     @FXML
-    private Text finalScore; //final score at the end screen
+    private Text score; // Score on top of the screen
+
+    @FXML
+    private Text finalScore; // Final score at the end screen
 
     @FXML
     private Text highestScore;
-
 
     @FXML
     private AnchorPane startScreen; // Start screen
@@ -52,11 +49,11 @@ public class FlappyBirdController implements Initializable
     double planeHeight = 600;
     double planeWidth = 400;
     int scoreCounter = 0;
-    private Bird birdObj;
-    private ObstacleManager obstacleManager;
+    private Pig pigObj; // Pig object handling movement and collision
+    private ObstacleManager obstacleManager; // Manages creation and movement of pipes
 
     ArrayList<Rectangle> obstacles = new ArrayList<>(); // ArrayList to hold obstacles
-    ScoreManager scoreManager = new ScoreManager();
+    ScoreManager scoreManager = new ScoreManager(); // Handles file-based score tracking
 
 
     private boolean gameStarted = false;
@@ -74,10 +71,11 @@ public class FlappyBirdController implements Initializable
         gameStarted = true; // Starts the game
         plane.requestFocus(); // Focuses the screen back to the main game
         gameLoop.start(); // Starts the game loop
-        score.setVisible(true);
+        score.setVisible(true); // Makes the score visible
     }
 
     @FXML
+    // Restarts the game if the button is pressed
     void restartButtonPressed(ActionEvent event)
     {
         resetGame();
@@ -86,8 +84,8 @@ public class FlappyBirdController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        // Start the game by creating the bird object and managing the obstacles object
-        birdObj = new Bird(bird, jumpHeight);
+        // Start the game by creating the pig object and managing the obstacles object
+        pigObj = new Pig(pig, jumpHeight);
         obstacleManager = new ObstacleManager(plane, planeHeight, planeWidth);
 
         gameLoop = new AnimationTimer()
@@ -98,8 +96,6 @@ public class FlappyBirdController implements Initializable
                 update();
             }
         };
-
-
         obstacles.addAll(obstacleManager.createObstacles());
     }
 
@@ -108,14 +104,14 @@ public class FlappyBirdController implements Initializable
     {
             if(event.getCode() == KeyCode.SPACE)
             {
+                // Starts the game if space is pressed and end screen is not visable
                 if (!gameStarted && !endScreen.isVisible())
                 {
                     startGame();
                 }
-
                 if(gameStarted)
                 {
-                    birdObj.fly(); // Bird flies if space is pressed
+                    pigObj.fly(); // Pig flies if space is pressed
                     accelerationTime = 0; // Reset acceleration timer
                 }
             }
@@ -127,14 +123,14 @@ public class FlappyBirdController implements Initializable
         accelerationTime++;
         gameTime++;
 
-        // Apply gravity to the bird object
-        birdObj.moveBirdY(yAxisMovement * accelerationTime);
+        // Apply gravity to the pig object
+        pigObj.movePigY(yAxisMovement * accelerationTime);
 
         // Move and mange obstacles
         obstacleManager.moveObstacles(obstacles);
 
 
-        if(updateScore(obstacles, bird))
+        if(updateScore(obstacles, pig))
         {
             scoreCounter++;
             score.setText(String.valueOf(scoreCounter));
@@ -146,21 +142,22 @@ public class FlappyBirdController implements Initializable
             obstacles.addAll(obstacleManager.createObstacles());
         }
 
-        // Checks if the bird is dead
-        if(birdObj.isBirdDead(obstacles, plane))
+        // Checks if the pig is dead and ends the game
+        if(pigObj.isPigDead(obstacles, plane))
         {
             endGame();
         }
     }
 
 
-    private boolean updateScore(ArrayList<Rectangle> obstacles, Rectangle bird)
+    // Checks if pig has passed an obstacle
+    private boolean updateScore(ArrayList<Rectangle> obstacles, Rectangle pig)
     {
         for (Rectangle obstacle: obstacles)
         {
-            int birdPositionX = (int) (bird.getLayoutX() + bird.getX());
-            int obstaclePositionX = (int) (obstacle.getLayoutX() + obstacle.getX());
-            if(obstaclePositionX == birdPositionX)
+            int pigPositionX = (int) (pig.getLayoutX() + pig.getX()); //gets the pig's location on the x-axis
+            int obstaclePositionX = (int) (obstacle.getLayoutX() + obstacle.getX()); //gets the obstacle location on the x-axis
+            if(obstaclePositionX == pigPositionX)
             {
                 return true;
             }
@@ -172,7 +169,7 @@ public class FlappyBirdController implements Initializable
     // Resets the entire game
     private void resetGame()
     {
-        bird.setY(0); // Reset bird position
+        pig.setY(0); // Reset pig position
         plane.getChildren().removeAll(obstacles); // Remove all current obstacles
         obstacles.clear(); // Clear obstacle list
         accelerationTime = 0;
@@ -180,27 +177,28 @@ public class FlappyBirdController implements Initializable
         time = 0;
         scoreCounter = 0;
         score.setText("0"); // Reset the score to 0
-        score.setVisible(true);
-        endScreen.setVisible(false);
-        plane.requestFocus();
+        score.setVisible(true); // Reveals the score on top of the screen
+        endScreen.setVisible(false); // Hides the end screen
+        plane.requestFocus(); // Regain key focus
         gameStarted = true;
-        gameLoop.start();
+        gameLoop.start(); // Restart the game
     }
 
     private void endGame()
     {
-        score.setVisible(false);
+        score.setVisible(false); // Hide the score
         scoreManager.addScore(scoreCounter); // Saves the current score
         gameStarted = false;
-        finalScore.setText("Score:" + score.getText());
-        highestScore.setText("Highest Score:" + scoreManager.topScore());
-        endScreen.setVisible(true);
-        endScreen.toFront();
+        finalScore.setText("Score:" + score.getText()); //Reveals your final score
+        highestScore.setText("Highest Score:" + scoreManager.topScore()); // Reveals your highest score
+        endScreen.setVisible(true); // Reveals end screen
+        endScreen.toFront(); // Makes the end screen appear on the front so that pipes don't block the text
         gameLoop.stop();
     }
 
 
     @FXML
+    // Opens the scoreboard scene
     private void scoreboardButtonPressed(ActionEvent event)
     {
         try
@@ -208,13 +206,14 @@ public class FlappyBirdController implements Initializable
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Scoreboard.fxml"));
             Parent root = loader.load();
 
+            // Passes the scores to the scoreboard
             ScoreboardController controller = loader.getController();
             controller.scoreboard(scoreManager.loadScores());
 
             Scene scene = new Scene(root);
-            FlappyBird.mainStage.setScene(scene);
-            FlappyBird.mainStage.setTitle("Your 10 Scores");
-            FlappyBird.mainStage.show();
+            FlappyPig.mainStage.setScene(scene);
+            FlappyPig.mainStage.setTitle("Your Top 10 Scores");
+            FlappyPig.mainStage.show();
         }
         catch (IOException e)
         {

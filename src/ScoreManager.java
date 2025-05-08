@@ -6,6 +6,8 @@ import java.util.List;
 
 public class ScoreManager
 {
+
+    // Loads all scores from file and returns the top 10 in order of highest to lowest
     public List<Integer> loadScores()
     {
         List<Integer> scores = new ArrayList<Integer>();
@@ -29,9 +31,9 @@ public class ScoreManager
             System.err.println("Error reading scores file");
         }
 
-        scores.sort(Collections.reverseOrder());
+        scores.sort(Collections.reverseOrder()); // Sort file descending order
 
-        scores = sortScores(scores);
+        scores = sortScores(scores); // Keeps only the top 10 while deleting the rest
 
         return scores;
     }
@@ -39,11 +41,11 @@ public class ScoreManager
 
     public void addScore(int newScore)
     {
-        List <Integer> scores = loadScores();
-        scores.add(newScore);
-        scores.sort(Collections.reverseOrder());
+        List <Integer> scores = loadScores(); // Load existing scores
+        scores.add(newScore); // Add the new score
+        scores.sort(Collections.reverseOrder()); // Sort file descending order
 
-        scores = sortScores(scores);
+        scores = sortScores(scores); // Keeps only the top 10 while deleting the rest
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt")))
         {
@@ -58,6 +60,7 @@ public class ScoreManager
         }
     }
 
+    // Makes sure that the ArrayList does not have more than 10 numbers
     private List<Integer> sortScores(List<Integer> scores)
     {
         if (scores.size() > 10)
@@ -67,6 +70,8 @@ public class ScoreManager
         return scores;
     }
 
+
+    // Gets the top score from the file
     public int topScore()
     {
         List <Integer> scores = loadScores();

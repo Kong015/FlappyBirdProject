@@ -48,7 +48,7 @@ public class ObstacleManager
         rectangle.setX(rectangle.getX() + distance);
     }
 
-    // Moves the obstacles in the arraylist towards the bird and removes those off-screen
+    // Moves the obstacles in the arraylist towards the pig and removes those off-screen
     public void moveObstacles(ArrayList<Rectangle> obstacles)
     {
         // Collects the obstacles that go off the screen

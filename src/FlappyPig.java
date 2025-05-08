@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class FlappyBird extends Application
+public class FlappyPig extends Application
 {
     public static Stage mainStage;
 
@@ -12,7 +12,7 @@ public class FlappyBird extends Application
     public void start(Stage primaryStage) throws Exception
     {
         mainStage = primaryStage;
-        Parent root = FXMLLoader.load(getClass().getResource("FlappyBird.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("FlappyPig.fxml"));
         Scene scene = new Scene(root); // attach scene graph to the scene
         mainStage.setTitle("Flappy Pig"); // displayed in window's title bar
         scene.getRoot().requestFocus(); // allows inputs from keyboard and mouse
