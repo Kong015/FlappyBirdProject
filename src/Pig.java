@@ -1,5 +1,7 @@
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
 
 import java.util.ArrayList;
 
@@ -12,6 +14,20 @@ public class Pig
     {
         this.pig = pig;
         this.jumpHeight = jumpHeight;
+    }
+
+
+    public void applyImage()
+    {
+        try
+        {
+            Image pigImage = new Image("Images/birdImage.png");
+            pig.setFill(new ImagePattern(pigImage));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     // Makes the pig jump upward

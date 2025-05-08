@@ -87,6 +87,8 @@ public class FlappyPigController implements Initializable
     {
         // Start the game by creating the pig object and managing the obstacles object
         pigObj = new Pig(pig, jumpHeight);
+        pigObj.applyImage();
+
         obstacleManager = new ObstacleManager(plane, planeHeight, planeWidth);
 
         gameLoop = new AnimationTimer()
