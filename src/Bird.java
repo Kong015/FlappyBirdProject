@@ -13,6 +13,7 @@ public class Bird
         this.jumpHeight = jumpHeight;
     }
 
+    // Makes the bird jump upward
     public void fly()
     {
         // If bird is too close to the top, move it only as far as allowed
@@ -25,7 +26,7 @@ public class Bird
         moveBirdY(-jumpHeight);
     }
 
-    // Moves bird vertically
+    // Moves bird vertically/gravity
     public void moveBirdY(double positionChange)
     {
         // Adding a ceiling so that limits the high of where the bird can fly
@@ -33,7 +34,6 @@ public class Bird
         {
             bird.setY(-200);
         }
-        System.out.println(bird.getY());
         bird.setY(bird.getY() + positionChange);
     }
 
@@ -45,7 +45,7 @@ public class Bird
         {
             return true;
         }
-        return birdY >= plane.getHeight();
+        return birdY >= plane.getHeight(); // Bird dies if it falls below screen
     }
 
     // Checks for collision between the bird and any obstacle

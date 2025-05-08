@@ -1,4 +1,5 @@
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
@@ -31,6 +32,10 @@ public class ObstacleManager
         // Create both of the tubes
         Rectangle rectangleTop = new Rectangle(xPos, 0, width, recTopHeight);
         Rectangle rectangleBottom = new Rectangle(xPos, recTopHeight + space, width, recBottomHeight);
+
+        // Set the color of the obstacles to green
+        rectangleTop.setFill(Color.GREEN);
+        rectangleBottom.setFill(Color.GREEN);
 
         // Add the tubes to the obstacles arraylist and the game plane
         plane.getChildren().addAll(rectangleTop,rectangleBottom);

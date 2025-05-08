@@ -1,12 +1,18 @@
 import javafx.animation.AnimationTimer;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -25,6 +31,19 @@ public class FlappyBirdController implements Initializable
     @FXML
     private Text score; //score on top of the screen
 
+    @FXML
+    private Text finalScore; //final score at the end screen
+
+    @FXML
+    private Text highestScore;
+
+
+    @FXML
+    private AnchorPane startScreen; // Start screen
+
+    @FXML
+    private AnchorPane endScreen; // End screen
+
     double yAxisMovement = 0.015; //Gravity acceleration factor
     double accelerationTime = 0;
     double time = 0; // Time passed since last jump
@@ -37,6 +56,32 @@ public class FlappyBirdController implements Initializable
     private ObstacleManager obstacleManager;
 
     ArrayList<Rectangle> obstacles = new ArrayList<>(); // ArrayList to hold obstacles
+    ScoreManager scoreManager = new ScoreManager();
+
+
+    private boolean gameStarted = false;
+    @FXML
+    // Start game when button pressed
+    void startButtonPressed(ActionEvent event)
+    {
+        startGame();
+    }
+
+    // Starts the game
+    private void startGame()
+    {
+        startScreen.setVisible(false); // Makes the start screen invisible
+        gameStarted = true; // Starts the game
+        plane.requestFocus(); // Focuses the screen back to the main game
+        gameLoop.start(); // Starts the game loop
+        score.setVisible(true);
+    }
+
+    @FXML
+    void restartButtonPressed(ActionEvent event)
+    {
+        resetGame();
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
@@ -54,19 +99,26 @@ public class FlappyBirdController implements Initializable
             }
         };
 
+
         obstacles.addAll(obstacleManager.createObstacles());
-        gameLoop.start();
     }
 
     @FXML
     void pressed(KeyEvent event) // Detects a keyboard input
     {
-        // Bird flies if space is pressed
-        if(event.getCode() == KeyCode.SPACE)
-        {
-            birdObj.fly();
-            accelerationTime = 0; // Reset acceleration timer
-        }
+            if(event.getCode() == KeyCode.SPACE)
+            {
+                if (!gameStarted && !endScreen.isVisible())
+                {
+                    startGame();
+                }
+
+                if(gameStarted)
+                {
+                    birdObj.fly(); // Bird flies if space is pressed
+                    accelerationTime = 0; // Reset acceleration timer
+                }
+            }
     }
 
     // Called every game frame
@@ -97,7 +149,7 @@ public class FlappyBirdController implements Initializable
         // Checks if the bird is dead
         if(birdObj.isBirdDead(obstacles, plane))
         {
-            resetGame();
+            endGame();
         }
     }
 
@@ -125,8 +177,49 @@ public class FlappyBirdController implements Initializable
         obstacles.clear(); // Clear obstacle list
         accelerationTime = 0;
         gameTime = 0;
+        time = 0;
         scoreCounter = 0;
         score.setText("0"); // Reset the score to 0
-        time = 0;
+        score.setVisible(true);
+        endScreen.setVisible(false);
+        plane.requestFocus();
+        gameStarted = true;
+        gameLoop.start();
+    }
+
+    private void endGame()
+    {
+        score.setVisible(false);
+        scoreManager.addScore(scoreCounter); // Saves the current score
+        gameStarted = false;
+        finalScore.setText("Score:" + score.getText());
+        highestScore.setText("Highest Score:" + scoreManager.topScore());
+        endScreen.setVisible(true);
+        endScreen.toFront();
+        gameLoop.stop();
+    }
+
+
+    @FXML
+    private void scoreboardButtonPressed(ActionEvent event)
+    {
+        try
+        {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Scoreboard.fxml"));
+            Parent root = loader.load();
+
+            ScoreboardController controller = loader.getController();
+            controller.scoreboard(scoreManager.loadScores());
+
+            Scene scene = new Scene(root);
+            FlappyBird.mainStage.setScene(scene);
+            FlappyBird.mainStage.setTitle("Your 10 Scores");
+            FlappyBird.mainStage.show();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 }
