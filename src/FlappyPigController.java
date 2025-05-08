@@ -51,6 +51,7 @@ public class FlappyPigController implements Initializable
     int scoreCounter = 0;
     private Pig pigObj; // Pig object handling movement and collision
     private ObstacleManager obstacleManager; // Manages creation and movement of pipes
+    private long lastTime = 0; // Used to track the elapsed time
 
     ArrayList<Rectangle> obstacles = new ArrayList<>(); // ArrayList to hold obstacles
     ScoreManager scoreManager = new ScoreManager(); // Handles file-based score tracking
@@ -93,7 +94,13 @@ public class FlappyPigController implements Initializable
             @Override
             public void handle(long l)
             {
-                update();
+                //Uses elapsed instead frame generation so it compatible with different computers and laptops
+                if (lastTime > 0)
+                {
+                    double elapsedTime = (l - lastTime) / 1000000000.0;
+                    update(elapsedTime);
+                }
+                lastTime = l;
             }
         };
         obstacles.addAll(obstacleManager.createObstacles());
@@ -118,13 +125,13 @@ public class FlappyPigController implements Initializable
     }
 
     // Called every game frame
-    private void update()
+    private void update(double elapsedTime)
     {
-        accelerationTime++;
+        accelerationTime += elapsedTime;
         gameTime++;
 
         // Apply gravity to the pig object
-        pigObj.movePigY(yAxisMovement * accelerationTime);
+        pigObj.movePigY(yAxisMovement * accelerationTime * 100);
 
         // Move and mange obstacles
         obstacleManager.moveObstacles(obstacles);
