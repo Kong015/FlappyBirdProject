@@ -152,6 +152,7 @@ public class FlappyPigController implements Initializable
         // Checks if the pig is dead and ends the game
         if(pigObj.isPigDead(obstacles, plane))
         {
+            Sound.playCollision();
             endGame();
         }
     }
@@ -166,6 +167,7 @@ public class FlappyPigController implements Initializable
             int obstaclePositionX = (int) (obstacle.getLayoutX() + obstacle.getX()); //gets the obstacle location on the x-axis
             if(obstaclePositionX == pigPositionX)
             {
+                Sound.playScore();
                 return true;
             }
         }

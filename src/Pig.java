@@ -1,5 +1,6 @@
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
+
 import java.util.ArrayList;
 
 public class Pig
@@ -24,6 +25,7 @@ public class Pig
 
         // Otherwise, move pig up by jump height
         movePigY(-jumpHeight);
+        Sound.playJump();
     }
 
     // Moves pig vertically/gravity
