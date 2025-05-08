@@ -183,6 +183,7 @@ public class FlappyPigController implements Initializable
         gameTime = 0;
         time = 0;
         scoreCounter = 0;
+        lastTime = 0;
         score.setText("0"); // Reset the score to 0
         score.setVisible(true); // Reveals the score on top of the screen
         endScreen.setVisible(false); // Hides the end screen
